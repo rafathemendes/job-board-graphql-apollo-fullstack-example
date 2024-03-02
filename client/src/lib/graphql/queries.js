@@ -27,6 +27,7 @@ export async function getJob(id) {
       job(id: $id) {
         id
         title
+        description
         company {
           id
           name
@@ -47,6 +48,11 @@ export async function getCompany(id) {
         id
         name
         description
+        jobs {
+          id
+          title
+          date
+        }
       }
     }
   `;
