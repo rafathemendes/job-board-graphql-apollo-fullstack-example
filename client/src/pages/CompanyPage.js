@@ -21,9 +21,7 @@ function CompanyPage() {
       <h1 className="title">{company.name}</h1>
       <div className="box">{company.description}</div>
       <h3 className="title is-3">Jobs</h3>
-      <ul>
-        <JobList jobs={company.jobs} />
-      </ul>
+      <JobList jobs={company.jobs} />
     </div>
   );
 }
