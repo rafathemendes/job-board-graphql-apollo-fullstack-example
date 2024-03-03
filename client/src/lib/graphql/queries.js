@@ -1,19 +1,35 @@
-import { GraphQLClient, gql } from "graphql-request";
-import { getAccessToken } from '../auth';
+import {
+  ApolloClient,
+  InMemoryCache,
+  concat,
+  createHttpLink,
+} from "@apollo/client";
+import { gql } from "@apollo/client/core";
+import { setContext } from "@apollo/client/link/context";
+import { getAccessToken } from "../auth";
 
-const client = new GraphQLClient('http://localhost:9000/graphql', {
-  headers: () => {
-    const accessToken = getAccessToken();
-    if (accessToken) {
-      return { 'Authorization': `Bearer ${accessToken}` };
-    }
-    return {};
-  },
+const httpLink = createHttpLink({
+  uri: "http://localhost:9000/graphql",
+});
+
+const authLink = setContext((_, { headers }) => {
+  const accessToken = getAccessToken();
+  return {
+    headers: {
+      ...headers,
+      authorization: accessToken ? `Bearer ${accessToken}` : "",
+    },
+  };
+});
+
+const client = new ApolloClient({
+  link: concat(authLink, httpLink),
+  cache: new InMemoryCache(),
 });
 
 export async function getJobs() {
   const query = gql`
-    query {
+    query Jobs {
       jobs {
         id
         title
@@ -26,8 +42,8 @@ export async function getJobs() {
     }
   `;
 
-  const { jobs } = await client.request(query);
-  return jobs;
+  const { data } = await client.query({ query });
+  return data.jobs;
 }
 
 export async function getJob(id) {
@@ -46,8 +62,8 @@ export async function getJob(id) {
     }
   `;
 
-  const { job } = await client.request(query, { id });
-  return job;
+  const { data } = await client.query({ query, variables: { id } });
+  return data.job;
 }
 
 export async function getCompany(id) {
@@ -66,8 +82,8 @@ export async function getCompany(id) {
     }
   `;
 
-  const { company } = await client.request(query, { id });
-  return company;
+  const { data } = await client.query({ query, variables: { id } });
+  return data.company;
 }
 
 export async function createJob(input) {
@@ -79,6 +95,6 @@ export async function createJob(input) {
     }
   `;
 
-  const { job } = await client.request(mutation, { input });
-  return job;
+  const { data } = await client.mutate({ mutation, variables: { input } });
+  return data.job;
 }
