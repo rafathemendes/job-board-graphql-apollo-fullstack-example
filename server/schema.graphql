@@ -4,6 +4,12 @@ type Query {
   jobs: [Job!]
 }
 
+type Mutation {
+  createJob(input: CreateJobInput!): Job
+  updateJob(input: UpdateJobInput!): Job
+  deleteJob(id: ID!): Job
+}
+
 type Company {
   id: ID!
   name: String!
@@ -20,4 +26,15 @@ type Job {
   The date the job was posted, in ISO-8601 format (e.g. 2020-01-01).
   """
   date: String!
+}
+
+input CreateJobInput {
+  title: String!
+  description: String
+}
+
+input UpdateJobInput {
+  id: ID!
+  title: String
+  description: String
 }

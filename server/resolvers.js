@@ -1,5 +1,12 @@
 import { getCompany } from "./db/companies.js";
-import { getJobs, getJob, getJobsByCompanyId } from "./db/jobs.js";
+import {
+  getJobs,
+  getJob,
+  getJobsByCompanyId,
+  createJob,
+  updateJob,
+  deleteJob,
+} from "./db/jobs.js";
 import { GraphQLError } from "graphql";
 
 const resolvers = {
@@ -21,6 +28,35 @@ const resolvers = {
     },
   },
 
+  Mutation: {
+    createJob: (_root, { input }, { user }) => {
+      if (!user) {
+        throw new UnauthorizedError("Missing authentication");
+      }
+      return createJob({ ...input, companyId: user.companyId });
+    },
+    updateJob: async (_root, { input }, { user }) => {
+      if (!user) {
+        throw new UnauthorizedError("Missing authentication");
+      }
+      const job = await updateJob({...input, companyId: user.companyId});
+      if (!job) {
+        throw new NotFoundError(`Job not found: ${input.id}`);
+      }
+      return job;
+    },
+    deleteJob: async (_root, { id }, { user }) => {
+      if (!user) {
+        throw new UnauthorizedError("Missing authentication");
+      }
+      const job = await deleteJob(id, user.companyId);
+      if (!job) {
+        throw new NotFoundError(`Job not found: ${id}`);
+      }
+      return job;
+    }
+  },
+
   Company: {
     jobs: (company) => getJobsByCompanyId(company.id),
   },
@@ -38,6 +74,12 @@ function toISO8601Date(dateString) {
 class NotFoundError extends GraphQLError {
   constructor(message) {
     super(message, { extensions: { code: "NOT_FOUND" } });
+  }
+}
+
+class UnauthorizedError extends GraphQLError {
+  constructor(message) {
+    super(message, { extensions: { code: "UNAUTHORIZED" } });
   }
 }
 
