@@ -2,13 +2,14 @@ import { useMutation, useQuery } from "@apollo/client";
 import { queryGetCompanyById, queryGetJobById, queryGetJobs } from "./queries";
 import { mutationCreateJob } from "./mutations";
 
-export function useJobs() {
+export function useJobs(limit, offset) {
   const { data, loading, error } = useQuery(queryGetJobs, {
     fetchPolicy: "network-only",
+    variables: { limit, offset },
   });
   return {
     loading,
-    data: data ? data.jobs : [],
+    data: data ? data.jobs : null,
     error: Boolean(error),
   };
 }

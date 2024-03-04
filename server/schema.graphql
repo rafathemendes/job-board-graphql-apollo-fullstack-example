@@ -1,7 +1,7 @@
 type Query {
   company(id: ID!): Company
   job(id: ID!): Job
-  jobs: [Job!]
+  jobs(limit: Int, offset: Int): JobPage
 }
 
 type Mutation {
@@ -26,6 +26,11 @@ type Job {
   The date the job was posted, in ISO-8601 format (e.g. 2020-01-01).
   """
   date: String!
+}
+
+type JobPage {
+  items: [Job!]!
+  totalCount: Int!
 }
 
 input CreateJobInput {

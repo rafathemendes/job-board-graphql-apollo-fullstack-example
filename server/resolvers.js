@@ -6,12 +6,20 @@ import {
   getJob,
   getJobs,
   getJobsByCompanyId,
+  getJobsCount,
   updateJob,
 } from "./db/jobs.js";
 
 const resolvers = {
   Query: {
-    jobs: () => getJobs(),
+    jobs: async (_root, { limit, offset }) => {
+      const items = await getJobs(limit, offset);
+      const totalCount = await getJobsCount();
+      return {
+        items,
+        totalCount,
+      };
+    },
     job: async (_root, { id }) => {
       const job = await getJob(id);
       if (!job) {

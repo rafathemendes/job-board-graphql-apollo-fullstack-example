@@ -2,9 +2,12 @@ import { gql } from "@apollo/client/core";
 import { fragmentJobDetails } from "./fragments";
 
 export const queryGetJobs = gql`
-  query Jobs {
-    jobs {
-      ...JobDetails
+  query Jobs($limit: Int, $offset: Int) {
+    jobs(limit: $limit, offset: $offset) {
+      items {
+        ...JobDetails
+      }
+      totalCount
     }
   }
   ${fragmentJobDetails}
