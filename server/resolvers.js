@@ -1,13 +1,13 @@
+import { GraphQLError } from "graphql";
 import { getCompany } from "./db/companies.js";
 import {
-  getJobs,
-  getJob,
-  getJobsByCompanyId,
   createJob,
-  updateJob,
   deleteJob,
+  getJob,
+  getJobs,
+  getJobsByCompanyId,
+  updateJob,
 } from "./db/jobs.js";
-import { GraphQLError } from "graphql";
 
 const resolvers = {
   Query: {
@@ -63,7 +63,8 @@ const resolvers = {
 
   Job: {
     date: (job) => toISO8601Date(job.createdAt),
-    company: (job) => getCompany(job.companyId),
+    company: (job, _args, { companyLoader }) =>
+      companyLoader.load(job.companyId),
   },
 };
 
