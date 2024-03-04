@@ -1,27 +1,5 @@
 import { gql } from "@apollo/client/core";
-import client from "./client";
-
-const FRAGMENT_JOB_DETAILS = gql`
-  fragment JobDetails on Job {
-    id
-    title
-    description
-    company {
-      id
-      name
-    }
-    date
-  }
-`;
-
-const MUTATION_CREATE_JOB = gql`
-  mutation CreateJob($input: CreateJobInput!) {
-    job: createJob(input: $input) {
-      ...JobDetails
-    }
-  }
-  ${FRAGMENT_JOB_DETAILS}
-`;
+import { fragmentJobDetails } from "./fragments";
 
 export const queryGetJobs = gql`
   query Jobs {
@@ -29,7 +7,7 @@ export const queryGetJobs = gql`
       ...JobDetails
     }
   }
-  ${FRAGMENT_JOB_DETAILS}
+  ${fragmentJobDetails}
 `;
 
 export const queryGetJobById = gql`
@@ -38,7 +16,7 @@ export const queryGetJobById = gql`
       ...JobDetails
     }
   }
-  ${FRAGMENT_JOB_DETAILS}
+  ${fragmentJobDetails}
 `;
 
 export const queryGetCompanyById = gql`
@@ -55,19 +33,3 @@ export const queryGetCompanyById = gql`
     }
   }
 `;
-
-export async function createJob(input) {
-  const { data } = await client.mutate({
-    mutation: MUTATION_CREATE_JOB,
-    variables: { input },
-    update: (cache, { data }) => {
-      // Update the cache with the new job
-      cache.writeQuery({
-        query: queryGetJobById,
-        variables: { id: data.job.id },
-        data,
-      });
-    },
-  });
-  return data.job;
-}

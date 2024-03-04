@@ -39,7 +39,7 @@ const resolvers = {
       if (!user) {
         throw new UnauthorizedError("Missing authentication");
       }
-      const job = await updateJob({...input, companyId: user.companyId});
+      const job = await updateJob({ ...input, companyId: user.companyId });
       if (!job) {
         throw new NotFoundError(`Job not found: ${input.id}`);
       }
@@ -54,7 +54,7 @@ const resolvers = {
         throw new NotFoundError(`Job not found: ${id}`);
       }
       return job;
-    }
+    },
   },
 
   Company: {
